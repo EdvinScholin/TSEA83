@@ -25,8 +25,11 @@ architecture Behavioral of lab is
     signal lp : std_logic;              -- laddpuls
     signal pos : UNSIGNED(1 downto 0) := "00";
 
-begin
+    signal cc : UNSIGNED(9 downto 0) := "0000000000"; -- clock counter
+    signal spc : UNSIGNED(3 downto 0) := "0000";      -- shift pulse counter
+    signal ce : std_logic;                          -- count enable
 
+begin
 
   -- *****************************
   -- *  synkroniseringsvippor    *
@@ -34,9 +37,9 @@ begin
   process(clk) begin
     if rising_edge(clk) then
       if rst = '1' then
-        rx1 = '0';
-        rx2 = '0';
-      else then
+        rx1 <= '0';
+        rx2 <= '0';
+      else
         rx1 <= rx;
         rx2 <= rx1;
       end if;
@@ -45,14 +48,56 @@ begin
   -- *****************************
   -- *       styrenhet           *
   -- *****************************
-   
+  process(clk) begin
+    if rising_edge(clk) then
+      if rst = '1' then
+        ce <= '0';
+      elsif rx1 = '0' and rx2 ='1' then
+        ce <= '1';
+      end if;
+    end if;
+  end process;
+
+  process(clk) begin
+    if rising_edge(clk) then
+      if rst = '1' or ce = '0' then
+        sp <= '0';
+        lp <= '0';
+        cc <= "0000000000";
+        ce <= '0';
+      elsif ce = '1' then 
+        if cc = 867 then
+          cc <= "0000000000";
+          sp <= '0';
+        elsif cc = 433 then
+          if spc = 9 then
+            spc <= "0000";
+            lp <= '1';
+            ce <= '0';
+          else 
+            sp <= '1';
+            spc <= spc + 1;
+          end if;
+
+          cc <= cc + 1;
+        else 
+          cc <= cc + 1;
+          sp <= '0';
+        end if;
+
+      elsif rx1 = '0' and rx2 ='1' then
+          ce <= '1';
+      end if;
+    end if;
+  end process;
+
   -- *****************************
   -- * 10 bit skiftregister      *
   -- *****************************
   process(clk) begin                
     if rising_edge(clk) then
       if rst = '1' then
-        sreg <= 0;
+        sreg <= B"0_00000000_0";
       elsif sp = '1' then
         sreg <= rx2 & sreg(9 downto 1);
       end if;
@@ -64,11 +109,11 @@ begin
   process(clk) begin
     if rising_edge(clk) then
       if rst = '1' then
-        pos <= 0;
+        pos <= "00";
       elsif lp = '1' then
         if pos = 3 then
-          pos <= 0;
-        else then
+          pos <= "00";
+        else
           pos <= pos + 1;
         end if;
       end if;
@@ -78,8 +123,24 @@ begin
   -- *****************************
   -- * 16 bit register           *
   -- *****************************
-  
-  
+  process(clk) begin
+    if rising_edge(clk) then
+      if rst = '1' then
+        tal <= X"0000";
+      elsif lp = '1' then 
+        if pos = 0 then
+          tal(15 downto 12) <= sreg(4 downto 1);
+        elsif pos = 1 then
+          tal(11 downto 8) <= sreg(4 downto 1);
+        elsif pos = 2 then
+          tal(7 downto 4) <= sreg(4 downto 1);
+        else
+          tal(3 downto 0) <= sreg(4 downto 1);
+        end if;
+      end if;
+    end if;
+  end process;
+        
   -- *****************************
   -- * Multiplexad display       *
   -- *****************************
