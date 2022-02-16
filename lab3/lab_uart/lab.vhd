@@ -50,16 +50,6 @@ begin
   -- *****************************
   process(clk) begin
     if rising_edge(clk) then
-      if rst = '1' then
-        ce <= '0';
-      elsif rx1 = '0' and rx2 ='1' then
-        ce <= '1';
-      end if;
-    end if;
-  end process;
-
-  process(clk) begin
-    if rising_edge(clk) then
       if rst = '1' or ce = '0' then
         sp <= '0';
         lp <= '0';
