@@ -50,35 +50,33 @@ begin
   -- *****************************
   process(clk) begin
     if rising_edge(clk) then
-      if rst = '1' then 
-        sp <= '0';
-        lp <= '0';
-        cc <= "0000000000";
-        ce <= '0';
-      elsif ce = '1' then 
-        if cc = 867 then
-          cc <= "0000000000";
-          sp <= '0';
-        elsif cc = 433 then
-          if spc = 10 then
-            spc <= "0000";
-            lp <= '1';
-            ce <= '0';
-          else 
-            sp <= '1';
-            spc <= spc + 1;
-          end if;
+      sp <= '0';
+      lp <= '0';
 
+      if rst = '1' then 
+        cc <= "0000000000";
+        spc <= "0000";
+        ce <= '0';      
+      elsif ce = '1' then 
+        if spc = 10 then
+          spc <= "0000";
+          cc <= "0000000000";
+          lp <= '1';
+          ce <= '0';
+
+        elsif cc = 867 then
+          cc <= "0000000000";
+          
+        elsif cc = 433 then 
+          sp <= '1';
+          spc <= spc + 1;
           cc <= cc + 1;
         else 
           cc <= cc + 1;
-          sp <= '0';
         end if;
 
       elsif rx1 = '0' and rx2 ='1' then
           ce <= '1';
-      else
-          lp <= '0'; --VET INTE ALLS OM DEN SKA VARA HÄR MEN TROR DET BEHÖVS LP TILL NOLL
       end if;
     end if;
   end process;
@@ -92,11 +90,10 @@ begin
         sreg <= B"0_00000000_0";
       elsif sp = '1' then
         sreg <= rx2 & sreg(9 downto 1);
-        
-
       end if;
     end if;
   end process;
+
   -- *****************************
   -- * 2 bit räknare             *
   -- *****************************
