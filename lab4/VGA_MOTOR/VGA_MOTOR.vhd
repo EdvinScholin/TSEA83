@@ -354,6 +354,21 @@ begin
 	
 	
   -- Horizontal pixel counter
+  -- 10 bits räknare för att kunna räkna upp till 800 decimalt?  
+
+    process(clk) begin
+        if rising_edge(clk) then 
+            if rst = '1' then
+                Xpixel <= "0000000000";
+            elsif Clk25 = '1' then
+                if Xpixel = 800 then
+                    Xpixel <= "0000000000";
+                else
+                    Xpixel <= Xpixel + 1;
+                end if;
+            end if;
+        end if;
+    end process;
 
   -- ***********************************
   -- *                                 *
@@ -362,9 +377,9 @@ begin
   -- *                                 *
   -- ***********************************
 
-
-  
   -- Horizontal sync
+    
+    Hsync <= '1' when (Xpixel > 656) and (Xpixel < 753) else '0';
 
   -- ***********************************
   -- *                                 *
@@ -372,10 +387,24 @@ begin
   -- *  Hsync                          *
   -- *                                 *
   -- ***********************************
-  
 
-  
   -- Vertical pixel counter
+    process(clk) begin
+        if rising_edge(clk) then 
+            if rst = '1' then
+                Ypixel <= "0000000000";
+            elsif Clk25 = '1' then
+                if Xpixel = 800 then
+                    if Ypixel = 521 then
+                        Ypixel <= "0000000000";
+                    else 
+                        Ypixel <= Ypixel + 1;
+                    end if;
+                end if;
+            end if;
+        end if;
+    end process;
+
 
   -- ***********************************
   -- *                                 *
@@ -388,6 +417,8 @@ begin
 
   -- Vertical sync
 
+    Vsync <= '1' when (Ypixel > 490) and (Ypixel < 493) else '0';
+
   -- ***********************************
   -- *                                 *
   -- *  VHDL for :                     *
@@ -399,6 +430,15 @@ begin
 
   
   -- Video blanking signal
+
+    --Tror kanske att 1 och 0 ska byta plats, osäker dock, vet inte riktigt när den ska ligga hög el låg
+
+    blank <= '1' when 
+             (((Ypixel > 480) and (Ypixel < 491)) or (Ypixel > 492)) and
+             (((Xpixel > 640) and (Xpixel < 657)) or (Xpixel > 752))
+         else '0';
+
+
 
   -- ***********************************
   -- *                                 *
