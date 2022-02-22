@@ -82,7 +82,16 @@ begin
 
   
   -- PS2 data shift register
-
+    process(clk) begin                
+        if rising_edge(clk) then
+            if rst = '1' then
+                PS2Data_sr <= B"00000000000";
+            elsif PS2Clk_op = '1' then
+                PS2Data_sr <= PS2Data & PS2Data_sr(10 downto 1); --ska det vara down to 1?
+            end if;
+        end if;
+    end process;
+ 
   -- ***********************************
   -- *                                 *
   -- *  VHDL for :                     *
@@ -97,6 +106,17 @@ begin
 	
   -- PS2 bit counter
   -- The purpose of the PS2 bit counter is to tell the PS2 state machine when to change state
+    process(clk) begin
+        if rising_edge(clk) then
+            if rst = '1' then
+                PS2BitCounter <= "0000";
+            elsif PS2BitCounter = 11 then --vet inte om detta är en "synchronous clear"
+                PS2BitCounter <= "0000";
+            else
+                PS2BitCounter <= PS2BitCounter + 1;
+            end if;
+        end if;
+    end process;
 
   -- ***********************************
   -- *                                 *
@@ -112,6 +132,32 @@ begin
   -- Either MAKE or BREAK state is identified from the scancode
   -- Only single character scan codes are identified
   -- The behavior of multiple character scan codes is undefined
+
+
+    process(clk) begin
+        if rising_edge(clk) then
+            if rst='1' then
+                PS2state <= IDLE;
+            else
+                case PS2state is
+                    when IDLE => 
+                        if PS2BitCounter = 11 and ScanCode /= x"F0" then
+                            PS2state <= MAKE;
+                        elsif PS2BitCounter = 11 and ScanCode = x"F0" then 
+                            PS2state <= BREAK;
+                        end if;
+                    when MAKE =>
+                        PS2state <= IDLE;
+                    when BREAK =>
+                        if PS2BitCounter = 11 then
+                            PS2state <= IDLE;
+                        end if;
+                end case;
+            end if;
+        end if;
+    end process;
+
+
 
   -- ***********************************
   -- *                                 *
