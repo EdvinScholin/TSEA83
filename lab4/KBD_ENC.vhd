@@ -85,7 +85,7 @@ begin
     process(clk) begin                
         if rising_edge(clk) then
             if rst = '1' then
-                PS2Data_sr <= B"00000000000";
+                PS2Data_sr <= "00000000000"; -- vet inte om det ser ut sÃ¥
             elsif PS2Clk_op = '1' then
                 PS2Data_sr <= PS2Data & PS2Data_sr(10 downto 1); --ska det vara down to 1?
             end if;
@@ -110,9 +110,9 @@ begin
         if rising_edge(clk) then
             if rst = '1' then
                 PS2BitCounter <= "0000";
-            elsif PS2BitCounter = 11 then --vet inte om detta är en "synchronous clear"
+            elsif PS2BitCounter = 11 then --vet inte om detta ï¿½r en "synchronous clear"
                 PS2BitCounter <= "0000";
-            else
+            elsif PS2Clk_op = '1' then
                 PS2BitCounter <= PS2BitCounter + 1;
             end if;
         end if;
@@ -141,17 +141,19 @@ begin
             else
                 case PS2state is
                     when IDLE => 
-                        if PS2BitCounter = 11 and ScanCode /= x"F0" then
+                        if (PS2BitCounter = 11) and (ScanCode /= "11110000") then
                             PS2state <= MAKE;
-                        elsif PS2BitCounter = 11 and ScanCode = x"F0" then 
+                        elsif (PS2BitCounter = 11) and (ScanCode = "11110000") then 
                             PS2state <= BREAK;
                         end if;
                     when MAKE =>
                         PS2state <= IDLE;
                     when BREAK =>
-                        if PS2BitCounter = 11 then
+                        if (PS2BitCounter = 11) then
                             PS2state <= IDLE;
                         end if;
+                    when others =>
+                        PS2state <= IDLE;
                 end case;
             end if;
         end if;
@@ -198,9 +200,9 @@ begin
 		 x"18" when x"22",	-- X
 		 x"19" when x"35",	-- Y
 		 x"1A" when x"1A",	-- Z
-                 x"1B" when x"54",      -- Å
-                 x"1C" when x"52",      -- Ä
-                 x"1D" when x"4C",      -- Ö
+                 x"1B" when x"54",      -- ï¿½
+                 x"1C" when x"52",      -- ï¿½
+                 x"1D" when x"4C",      -- ï¿½
 		 x"00" when others;
 						 
 						 

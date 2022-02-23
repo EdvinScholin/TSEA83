@@ -287,7 +287,7 @@ architecture Behavioral of VGA_MOTOR is
 		  x"03",x"03",x"03",x"03",x"03",x"03",x"03",x"FF",
 		  x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",
 
-		  x"FF",x"FF",x"FF",x"00",x"FF",x"FF",x"FF",x"FF",      -- Å
+		  x"FF",x"FF",x"FF",x"00",x"FF",x"FF",x"FF",x"FF",      -- ï¿½
 		  x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",
 		  x"FF",x"00",x"00",x"00",x"00",x"00",x"FF",x"FF",
 		  x"00",x"00",x"FF",x"FF",x"FF",x"00",x"00",x"FF",
@@ -296,7 +296,7 @@ architecture Behavioral of VGA_MOTOR is
 		  x"00",x"00",x"FF",x"FF",x"FF",x"00",x"00",x"FF",
 		  x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",
 
-		  x"FF",x"FF",x"00",x"FF",x"00",x"FF",x"FF",x"FF",      -- Ä
+		  x"FF",x"FF",x"00",x"FF",x"00",x"FF",x"FF",x"FF",      -- ï¿½
 		  x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",
 		  x"FF",x"00",x"00",x"00",x"00",x"00",x"FF",x"FF",
 		  x"00",x"00",x"FF",x"FF",x"FF",x"00",x"00",x"FF",
@@ -305,7 +305,7 @@ architecture Behavioral of VGA_MOTOR is
 		  x"00",x"00",x"FF",x"FF",x"FF",x"00",x"00",x"FF",
 		  x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",
 
-		  x"FF",x"FF",x"00",x"FF",x"00",x"FF",x"FF",x"FF",      -- Ö
+		  x"FF",x"FF",x"00",x"FF",x"00",x"FF",x"FF",x"FF",      -- ï¿½
 		  x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",
 		  x"FF",x"00",x"00",x"00",x"00",x"00",x"FF",x"FF",
 		  x"00",x"00",x"FF",x"FF",x"FF",x"00",x"00",x"FF",
@@ -354,7 +354,7 @@ begin
 	
 	
   -- Horizontal pixel counter
-  -- 10 bits räknare för att kunna räkna upp till 800 decimalt?  
+  -- 10 bits rï¿½knare fï¿½r att kunna rï¿½kna upp till 800 decimalt?  
 
     process(clk) begin
         if rising_edge(clk) then 
@@ -379,7 +379,7 @@ begin
 
   -- Horizontal sync
     
-    Hsync <= '1' when (Xpixel > 656) and (Xpixel < 753) else '0';
+    Hsync <= '0' when (Xpixel > 656) and (Xpixel < 753) else '1';
 
   -- ***********************************
   -- *                                 *
@@ -417,7 +417,7 @@ begin
 
   -- Vertical sync
 
-    Vsync <= '1' when (Ypixel > 490) and (Ypixel < 493) else '0';
+    Vsync <= '0' when (Ypixel > 490) and (Ypixel < 493) else '1';
 
   -- ***********************************
   -- *                                 *
@@ -431,14 +431,16 @@ begin
   
   -- Video blanking signal
 
-    --Tror kanske att 1 och 0 ska byta plats, osäker dock, vet inte riktigt när den ska ligga hög el låg
+    --Tror kanske att 1 och 0 ska byta plats, osï¿½ker dock, vet inte riktigt nï¿½r den ska ligga hï¿½g el lï¿½g
 
-    blank <= '1' when 
-             (((Ypixel > 480) and (Ypixel < 491)) or (Ypixel > 492)) and
-             (((Xpixel > 640) and (Xpixel < 657)) or (Xpixel > 752))
-         else '0';
+--    blank <= '1' when 
+--             (((Ypixel > 480) and (Ypixel < 491)) or (Ypixel > 492)) and
+--             (((Xpixel > 640) and (Xpixel < 657)) or (Xpixel > 752))
+--         else '0';
 
 
+    blank <= '1' when ((Ypixel > 480) and (Xpixel > 640)) else '0';
+   
 
   -- ***********************************
   -- *                                 *
