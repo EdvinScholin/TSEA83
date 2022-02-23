@@ -439,7 +439,7 @@ begin
 --         else '0';
 
 
-    blank <= '1' when ((Ypixel > 480) and (Xpixel > 640)) else '0';
+    blank <= '1' when ((Ypixel > 480) or (Xpixel > 640)) else '0';
    
 
   -- ***********************************
